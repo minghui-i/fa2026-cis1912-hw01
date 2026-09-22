@@ -7,5 +7,45 @@ services:
         VITE_BACKEND_BASE_URL: http://localhost:8000
     ports:
       - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - frontend-net
 
   # TODO: add a `backend` service using the `cis1912/lab02-backend` image
+  backend:
+    image: ghcr.io/cis1912/hw01-backend:latest
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/tasks')"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - frontend-net
+      - backend-net
+
+  redis:
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend-net
+
+networks:
+  frontend-net:
+  backend-net:

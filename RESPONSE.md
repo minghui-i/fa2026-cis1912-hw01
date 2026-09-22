@@ -1,2 +1,5 @@
-
 > What is a multi-stage build, and why is it necessary? How does it help us build the Todo frontend?
+
+A multi-stage build is way of structuring our Dockerfile where we have `FROM` statements in the file. Using this method of creating our Dockerfile helps to separate concerns because each stage is responsible for a different job. We have two stages, for example, where one stage is used to build our application so that it may need to include things like the compiler, source code, and dependencies, and the other stage can then just contain what is actually needed to run the application, which could include the built artifacts and the runtime environment. This helps to reduce the size of the final Docker image and could also improve security since we are exposing less information to the outside world with fewer files.
+
+This would help to build our Todo frontend because we can have we have then have one stage to build the app from the source code and dependencies using build tools like Node and Yarn. And then in the second stage where we actually serve the frontend, we don't need build tools like Node, Yarn, and Vite but rather just the build artifacts from the last step so that we would use Caddy to serve it.
